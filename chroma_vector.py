@@ -1,8 +1,15 @@
 import numpy as np
 import math
 import matplotlib.pyplot as plt
+
+import specmurt
 label = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 label_num = range(12)
+
+
+def debug():
+    print('debug!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+    return
 
 
 # 12音に対するクロマベクトルを作成
@@ -122,8 +129,8 @@ def harmonic_structure():
 def make_specmurt_chroma_vectors(vectors, index, avg_chroma, inst, type):
     specmurt_chroma_vectors = []
     for note_number, name in enumerate(label):
-        specmurt_chroma = np.absolute(np.fft.ifft(np.fft.fft(vectors[note_number][index]) / np.fft.fft(avg_chroma)))
-        specmurt_chroma_vectors.append(specmurt_chroma)
+        # specmurt_chroma = np.absolute(np.fft.ifft(np.fft.fft(vectors[note_number][index]) / np.fft.fft(avg_chroma)))
+        specmurt_chroma_vectors.append(specmurt.make_specmurt_chroma_vector(vectors[note_number][index], avg_chroma))
     save_chroma_specmurt(specmurt_chroma_vectors, inst, type)
     return specmurt_chroma_vectors
 
