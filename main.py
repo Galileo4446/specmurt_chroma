@@ -29,14 +29,14 @@ chroma_vectors = sp.make_chroma_vectors(wavs)
 average_chroma = sp.make_average_chroma_vector(chroma_vectors, index)
 title = 'average chroma vector of trumpet'
 path = 'image/' + instrument + '/_AVG_CHROMA'
-sp.save_fig_chroma(average_chroma, title, path, label)
+sp.save_fig_chroma(average_chroma, title, path, range(12))
 
 # 1/fによる共通クロマベクトル構造の定義
 chroma_of_harmonic_structure = sp.harmonic_structure()
 title = 'average chroma vector of harmonic_structure'
 path = 'image/harmonic_structure_CV'
 cv_harmonic = np.roll(chroma_of_harmonic_structure[index], -9)
-sp.save_fig_chroma(cv_harmonic, title, path, label)
+sp.save_fig_chroma(cv_harmonic, title, path, range(12))
 
 path = 'image/' + instrument
 using = ' using average chroma vector of '
