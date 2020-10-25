@@ -9,7 +9,7 @@ import specmurt as sp
 
 rec_time = 3            # 録音時間[s]
 sampling_rate = 16000 # サンプリング周波数
-audio_buffer_size = 1024       # オーディオバッファサイズ
+audio_buffer_size = 2048       # オーディオバッファサイズ
 lower = 3
 upper = 6
 dt_now = datetime.datetime.now().strftime('%Y_%m%d_%H%M%S')

@@ -3,10 +3,9 @@ from scipy.io import wavfile
 import matplotlib.pyplot as plt
 import specmurt as sp
 
-instrument = 'trumpet'
-# instrument = 'piano'
+# instrument = 'trumpet'
+instrument = 'piano'
 
-AUDIO_BUFFER_SIZE = 1024
 LOWER_LIMIT = 3
 UPPER_LIMIT = 6
 index = 1
@@ -23,7 +22,7 @@ for note in notes:
     wavs.append(wav[:,0])
 
 # クロマベクトルの作成
-chroma_vectors = sp.make_chroma_vectors(wavs)
+chroma_vectors = sp.make_chroma_vector_list(wavs)
 
 # 従来のクロマベクトルをもとにした共通クロマベクトル構造の定義
 average_chroma = sp.make_average_chroma_vector(chroma_vectors, index)
@@ -53,5 +52,18 @@ for i, chroma in enumerate(chroma_vectors):
     title_hs = title + using + 'harmonic structure'
     name = path + '/harmonic_structure_' + label[i]
     sp.save_fig_chroma(sp.make_specmurt_chroma_vector(chroma[index], cv_harmonic), title_hs, name, label)
+# ifft同士で計算してfft
+    title_hs = title + using + 'harmonic structure2'
+    name = path + '/harmonic_structure_2' + label[i]
+    sp.save_fig_chroma(sp.make_specmurt_chroma_vector_2(chroma[index], cv_harmonic), title_hs, name, label)
+# デバッグ用 逆畳み込みの結果に共通クロマを畳み込み
+    title_debug = title + using + 'debug'
+    name = path + '/debug_' + label[i]
+    sp.save_fig_chroma(sp.make_debug_chroma_vector(sp.make_specmurt_chroma_vector(chroma[index], cv_harmonic), cv_harmonic), title_debug, name, label)
+# デバッグ用2 逆畳み込みの結果に共通クロマを畳み込み
+    title_debug = title + using + 'debug'
+    name = path + '/debug_2' + label[i]
+    sp.save_fig_chroma(sp.make_debug_chroma_vector_2(sp.make_specmurt_chroma_vector_2(chroma[index], cv_harmonic), cv_harmonic), title_debug, name, label)
+
 
 print('All process has been completed.')

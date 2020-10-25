@@ -5,23 +5,25 @@ import matplotlib.pyplot as plt
 audio_buffer_size = 1024
 lower = 3
 upper = 6
+sample_late = 16000.
 label = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
 
 # クロマベクトルを作成
 def make_chroma_vector(wav):
-    w_ham = np.hamming(audio_buffer_size)
+    # w_ham = np.hamming(audio_buffer_size)
     chroma_vector = []
-    bin_nums = []
-    for a in range(int(len(wav) / audio_buffer_size)):
+    # bin_nums = []
+    for buf_num in range(len(wav) // audio_buffer_size):
         sample = []
         value = []
-        bin_num = []
-        for num, b in enumerate(wav[a * audio_buffer_size: (a + 1) * audio_buffer_size]):
+        # bin_num = []
+        # b = wav[buf_num * audio_buffer_size: (buf_num + 1) * audio_buffer_size]
+        for num, b in enumerate(wav[buf_num * audio_buffer_size: (buf_num + 1) * audio_buffer_size]):
             # sample.append(w_ham[num] * b / (2 ** 15))
             sample.append(b / (2 ** 15))
         # FFT点数のルートで割ってから計算すれば最大値が0dBになる？  / math.sqrt(audio_buffer_size)
-        # print(note, a, b, num,sample==[])
+        # print(note, buf_num, b, num,sample==[])
         fft_wave = np.fft.fft(sample) / math.sqrt(audio_buffer_size)
         # plt.plot(abs(fft_wave[0:10000]))
         # plt.show()
@@ -29,22 +31,22 @@ def make_chroma_vector(wav):
             count = 0
             sum = 0
             for j in range(lower, upper + 1):
-                min_bin = (440. * pow(2., ((float(i) + 1.) - 10.) / 12. + float(j) - 3. - (1. / 24.))) * 1024. / 16000.
+                min_bin = (440 * pow(2., ((i + 1.) - 10.) / 12. + j - 3. - (1. / 24.))) * audio_buffer_size / sample_late
                 min_k =  math.ceil(min_bin)
-                max_bin = (440. * pow(2., ((float(i) + 1.) - 10.) / 12. + float(j) - 3. + (1. / 24.))) * 1024. / 16000.
+                max_bin = (440 * pow(2., ((i + 1.) - 10.) / 12. + j - 3. + (1. / 24.))) * audio_buffer_size / sample_late
                 max_k =  math.floor(max_bin)
                 if min_k <= max_k:
                     for k in range(min_k, max_k + 1):
                         sum += (fft_wave[k].real ** 2) + (fft_wave[k].imag ** 2)
                         count += 1
-                        bin_num.append(k)
-            value.append(sum / float(count))
-            bin_nums.append(bin_num)
+                        # bin_num.append(k)
+            value.append(sum / count)
+            # bin_nums.append(bin_num)
         chroma_vector.append(value)
-    return chroma_vector
+    return 10 * np.log10(chroma_vector)
 
 # 12音に対するクロマベクトルを作成
-def make_chroma_vectors(wavs):
+def make_chroma_vector_list(wavs):
     chroma_vectors=[]
     for note in range(12):
         chroma_vector = make_chroma_vector(wavs[note])
@@ -72,7 +74,18 @@ def make_average_chroma_vector(chroma_vectors, index):
     return average_chroma
 
 def make_specmurt_chroma_vector(vector, avg_chroma):
-    return np.absolute(np.fft.ifft(np.fft.fft(vector) / np.fft.fft(avg_chroma)))
+    return np.real(np.fft.ifft(np.fft.fft(vector) / np.fft.fft(avg_chroma)))
+
+def make_specmurt_chroma_vector_2(vector, avg_chroma):
+    return np.real(np.fft.fft(np.fft.ifft(vector) / np.fft.ifft(avg_chroma)))
+
+
+def make_debug_chroma_vector(vector, avg_chroma):
+    return np.real(np.fft.ifft(np.fft.fft(vector) * np.fft.fft(avg_chroma)))
+
+def make_debug_chroma_vector_2(vector, avg_chroma):
+    return np.real(np.fft.fft(np.fft.ifft(vector) * np.fft.ifft(avg_chroma)))
+
 
 def return_max(chroma):
     max_index = chroma.index(max(chroma))
@@ -81,14 +94,14 @@ def return_max(chroma):
 
 def harmonic_structure():
     wav = []
-    fs = 16000
+    # fs = 16000
     sec = 1
-    f0 = 440
+    f0 = 220
     a = 2 ** 15
-    for n in np.arange(fs * sec):
+    for n in np.arange(int(sample_late) * sec):
         s = 0
         for i in range(1, 7):
-            s += a / i * np.sin(2.0 * np.pi * f0 * i * n / fs)
+            s += a / i * np.sin(2.0 * np.pi * f0 * i * n / int(sample_late))
         wav.append(s)
     # plt.plot(wav[0:100])
     # plt.show()
